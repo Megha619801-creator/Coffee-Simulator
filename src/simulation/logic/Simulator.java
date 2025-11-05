@@ -7,16 +7,27 @@ public class Simulator {
     private final EventList eventList = new EventList();
     private double clock = 0.0;
 
+    // Service points
     private final ServicePoint cashier = new ServicePoint("Cashier", 3.0);
     private final ServicePoint barista = new ServicePoint("Barista", 5.0);
+    private final ServicePoint shelf = new ServicePoint("Pickup Shelf", 2.0);
+    private final ServicePoint delivery = new ServicePoint("Delivery Window", 4.0);
+    private final ServicePoint vipBarista = new ServicePoint("VIP Barista", 2.5);
+
     private final Random rand = new Random();
 
-    private final double meanArrivalTime = 4.0; // mean time between arrivals
+    private final double meanArrivalInstore = 4.0;
+    private final double meanArrivalMobile = 6.0;
+    private final double meanArrivalVIP = 15.0;
 
     public void initialize() {
-        double firstArrival = generateArrivalTime();
-        Customer first = new Customer("INSTORE", firstArrival);
-        eventList.add(new Event(firstArrival, Event.ARRIVAL, first, cashier));
+        // First arrivals for each customer type
+        eventList.add(new Event(generateArrivalTime(meanArrivalInstore), Event.ARRIVAL,
+                new Customer("INSTORE", clock), cashier));
+        eventList.add(new Event(generateArrivalTime(meanArrivalMobile), Event.ARRIVAL,
+                new Customer("MOBILE", clock), barista));
+        eventList.add(new Event(generateArrivalTime(meanArrivalVIP), Event.ARRIVAL,
+                new Customer("VIP", clock), vipBarista));
     }
 
     public void run(double endTime) {
@@ -49,10 +60,20 @@ public class Simulator {
             sp.addCustomer(c);
         }
 
-        // Schedule next arrival
-        double nextArrival = clock + generateArrivalTime();
-        Customer next = new Customer("INSTORE", nextArrival);
-        eventList.add(new Event(nextArrival, Event.ARRIVAL, next, cashier));
+        // Schedule next arrival depending on type
+        if (c.getType().equals("INSTORE")) {
+            double nextArrival = clock + generateArrivalTime(meanArrivalInstore);
+            eventList.add(new Event(nextArrival, Event.ARRIVAL,
+                    new Customer("INSTORE", nextArrival), cashier));
+        } else if (c.getType().equals("MOBILE")) {
+            double nextArrival = clock + generateArrivalTime(meanArrivalMobile);
+            eventList.add(new Event(nextArrival, Event.ARRIVAL,
+                    new Customer("MOBILE", nextArrival), barista));
+        } else if (c.getType().equals("VIP")) {
+            double nextArrival = clock + generateArrivalTime(meanArrivalVIP);
+            eventList.add(new Event(nextArrival, Event.ARRIVAL,
+                    new Customer("VIP", nextArrival), vipBarista));
+        }
     }
 
     private void handleDeparture(Event e) {
@@ -70,14 +91,22 @@ public class Simulator {
             sp.setBusy(false);
         }
 
-        // move from cashier → barista
+        // Route customers after service
         if (sp == cashier) {
             eventList.add(new Event(clock, Event.ARRIVAL, c, barista));
+        } else if (sp == barista) {
+            if (c.getType().equals("INSTORE")) {
+                eventList.add(new Event(clock, Event.ARRIVAL, c, shelf));
+            } else {
+                eventList.add(new Event(clock, Event.ARRIVAL, c, delivery));
+            }
+        } else if (sp == vipBarista) {
+            // VIP goes directly to shelf (or can end here)
+            eventList.add(new Event(clock, Event.ARRIVAL, c, shelf));
         }
     }
 
-    private double generateArrivalTime() {
-        // Poisson process = exponential inter-arrival time
-        return -meanArrivalTime * Math.log(1 - rand.nextDouble());
+    private double generateArrivalTime(double mean) {
+        return -mean * Math.log(1 - rand.nextDouble());
     }
 }

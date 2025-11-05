@@ -1,18 +1,19 @@
 package simulation.model;
 
-
 public class Customer {
     private static int counter = 0;
     private final int id;
-    private final String type; // "INSTORE" or "MOBILE"
+    private final String type; // "INSTORE", "MOBILE", or "VIP"
     private double arrivalTime;
     private double serviceStartTime;
     private double serviceEndTime;
+    private boolean vip;
 
     public Customer(String type, double arrivalTime) {
         this.id = ++counter;
         this.type = type;
         this.arrivalTime = arrivalTime;
+        this.vip = type.equalsIgnoreCase("VIP");
     }
 
     public int getId() {
@@ -21,6 +22,10 @@ public class Customer {
 
     public String getType() {
         return type;
+    }
+
+    public boolean isVip() {
+        return vip;
     }
 
     public double getArrivalTime() {
@@ -52,6 +57,7 @@ public class Customer {
         return "Customer{" +
                 "id=" + id +
                 ", type='" + type + '\'' +
+                (vip ? ", VIP" : "") +
                 '}';
     }
 }
