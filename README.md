@@ -1,4 +1,4 @@
-# Coffee Simulator
+# Cafe Simulator
 
 A Java-based Coffee Simulator that models a coffee shop’s customer arrivals, barista workflows, and service behavior to measure wait times, throughput, and resource utilization. The simulation helps experiment with staffing, arrival rates, scheduling and machine use to compare operational scenarios and observe key metrics.
 
