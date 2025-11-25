@@ -3,7 +3,7 @@ package simulation.model;
 public class Customer {
     private static int counter = 0;
     private final int id;
-    private final String type; // "INSTORE", "MOBILE", or "VIP"
+    private final String type; // "INSTORE" or "MOBILE"
     private double arrivalTime;
     private double serviceStartTime;
     private double serviceEndTime;
@@ -50,6 +50,7 @@ public class Customer {
     public String toString() {
         return "Customer{" +
                 "id=" + id +
-                ", type='" + type + '\'';
+                ", type='" + type + '\'' +
+                '}';
     }
 }
