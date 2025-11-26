@@ -15,7 +15,7 @@
 - [ ] **Use distribution objects instead of manual formulas**
   - [x] Replace manual exponential sampling (`-mean * Math.log(1 - rand.nextDouble())`) with `ContinuousGenerator` implementations (e.g., `Negexp`).
   - [x] Allow different service points to use different distributions and/or parameters.
-  - [ ] Optionally create an `ArrivalProcess` class that owns a random generator and adds new arrival events to the event list.
+  - [x] Optionally create an `ArrivalProcess` class that owns a random generator and adds new arrival events to the event list.
 
 ### 3. Configurability and External Data
 - [ ] **Make model parameters configurable**
