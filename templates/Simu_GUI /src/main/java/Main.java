@@ -1,16 +1,28 @@
-import view.SimulatorGUI;
+import controller.IControllerMtoV;
+import simu.model.MyEngine;
 
-/* to install JavaFX (adapted from https://openjfx.io/openjfx-docs/):
- *	- Open Module Settings
- * 		- Libraries, add
- *			- from Maven openjfx.javafx.fxml:19.0.2 (this includes all necessary other JavaFX libraries)
- *	- Run Configuration Edit
- *		- Modify Options/Add VM options
- *			- --module-path "lib" --add-modules javafx.controls,javafx.fxml
- */
+import simu.framework.Trace;
 
-public class Main { // Simulator using Java FX
-	public static void main(String args[]) {
-		SimulatorGUI.main(args);
-	}
+public class Main {
+    public static void main(String[] args) {
+        // Set trace level
+        Trace.setTraceLevel(Trace.Level.INFO);
+
+        IControllerMtoV controller = new IControllerMtoV() {
+            @Override
+            public void visualiseCustomer() {
+                // simple terminal visualization
+            }
+
+            @Override
+            public void showEndTime(double time) {
+                System.out.println("Simulation ended at: " + time);
+            }
+        };
+
+        MyEngine engine = new MyEngine(controller);
+        engine.setSimulationTime(200); // simulation 200 time units
+        engine.setDelay(10);           // delay for visualization
+        engine.start();
+    }
 }
