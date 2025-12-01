@@ -20,9 +20,9 @@
 ### 3. Configurability and External Data
 - [ ] **Make model parameters configurable**
   - [x] Define a clear set of input parameters (arrival rates, service-time means, simulation end time, etc.).
-  - [ ] Load these parameters either from a configuration file or later from the GUI.
+  - [x] Load these parameters either from a configuration file or later from the GUI.
 - [ ] **Implement `FileManager`**
-  - [ ] Read configuration data (parameters, scenarios) from a file.
+  - [x] Read configuration data (parameters, scenarios) from a file.
   - [ ] Write simulation results and statistics (per service point and system-wide) to an output file (e.g., CSV or text).
 
 ### 4. Performance Metrics
@@ -39,18 +39,18 @@
 
 ### 5. JavaFX User Interface
 - [ ] **Basic UI shell**
-  - [ ] Implement `MainApp` as a JavaFX `Application` and create the primary `Stage` / `Scene`.
-  - [ ] Create a `Controller` (and optional FXML) with input controls for model parameters and buttons for controlling the simulation (e.g., Start, Stop/Reset).
+  - [x] Implement `MainApp` as a JavaFX `Application` and create the primary `Stage` / `Scene`.
+  - [x] Create a `Controller` (and optional FXML) with input controls for model parameters and buttons for controlling the simulation (e.g., Start, Stop/Reset).
 - [ ] **Displaying results**
-  - [ ] Show key performance variables in the UI (tables, labels, or text area).
-  - [ ] Provide clear labels and units so a casual user understands the outputs.
+  - [x] Show key performance variables in the UI (tables, labels, or text area).
+  - [x] Provide clear labels and units so a casual user understands the outputs.
 
 ### 6. Visualisation and Animation
 - [ ] **Canvas-based visualisation**
-  - [ ] Create a dedicated Canvas (or Canvas-based class) that visualises customers, queues, and/or service points.
-  - [ ] Use `Platform.runLater` from the simulation thread to update the Canvas safely.
+  - [x] Create a dedicated Canvas (or Canvas-based class) that visualises customers, queues, and/or service points.
+  - [x] Use `Platform.runLater` from the simulation thread to update the Canvas safely.
 - [ ] **Animation controls**
-  - [ ] Allow slowing down/speeding up the simulation (e.g., via sleep intervals or step size).
+  - [x] Allow slowing down/speeding up the simulation (e.g., via sleep intervals or step size).
   - [ ] Optionally support step-by-step execution (advance by one event or small time window).
 
 ### 7. Usability and External Behaviour
