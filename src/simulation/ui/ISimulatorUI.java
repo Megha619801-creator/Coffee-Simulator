@@ -8,4 +8,6 @@ public interface ISimulatorUI {
     void setEndingTime(double time);
 
     IVisualisation getVisualisation();
+
+    void showCurrentDelay(long delay);
 }

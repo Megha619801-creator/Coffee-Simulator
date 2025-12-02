@@ -21,6 +21,7 @@ public class Controller implements IControllerVtoM, IControllerMtoV {
         engine = new MyEngine(this);
         engine.setSimulationTime(ui.getTime());
         engine.setDelay(ui.getDelay());
+        ui.showCurrentDelay(engine.getDelay());
         ui.getVisualisation().clearDisplay();
         ((Thread) engine).start();
     }
@@ -30,7 +31,9 @@ public class Controller implements IControllerVtoM, IControllerMtoV {
         if (engine == null) {
             return;
         }
-        engine.setDelay((long) (engine.getDelay() * 1.10));
+        long updatedDelay = Math.max(1, (long) (engine.getDelay() * 1.10));
+        engine.setDelay(updatedDelay);
+        ui.showCurrentDelay(updatedDelay);
     }
 
     @Override
@@ -38,7 +41,9 @@ public class Controller implements IControllerVtoM, IControllerMtoV {
         if (engine == null) {
             return;
         }
-        engine.setDelay((long) (engine.getDelay() * 0.9));
+        long updatedDelay = Math.max(1, (long) (engine.getDelay() * 0.9));
+        engine.setDelay(updatedDelay);
+        ui.showCurrentDelay(updatedDelay);
     }
 
     @Override

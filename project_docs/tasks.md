@@ -69,11 +69,11 @@
 
 - [ ] **Improve layout and grouping**
   - [x] Group settings into blocks: Simulation Settings, Controls, and Results.
-  - [ ] Add spacing and align input fields for a cleaner layout.
-  - [ ] Add a status label (Idle / Running / Paused / Finished).
+  - [x] Add spacing and align input fields for a cleaner layout.
+  - [x] Add a status label (Idle / Running / Paused / Finished).
 
 - [ ] **Improve animation controls**
-  - [ ] Add clearer buttons for speed control and state transitions.
+  - [x] Add clearer buttons for speed control and state transitions.
   - [ ] Consider replacing numeric delay input with a Slider for animation speed.
 
 - [ ] **Input validation**
