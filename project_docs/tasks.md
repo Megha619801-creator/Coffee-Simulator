@@ -79,10 +79,10 @@
 - [ ] **Input validation**
   - [x] Validate numeric input for simulation time and delay.
   - [x] Show an Alert window when invalid values are entered.
-  - [ ] Highlight invalid fields with a red border.
+  - [x] Highlight invalid fields with a red border.
 
 - [ ] **Visualisation improvements**
-  - [ ] Add a legend explaining the meaning of labels like IN / MB.
+  - [x] Add a legend explaining the meaning of labels like IN / MB.
   - [ ] Adjust colours for better contrast and readability.
   - [ ] Improve role tooltips (Cashier, Barista, etc.) for non-technical users.
 

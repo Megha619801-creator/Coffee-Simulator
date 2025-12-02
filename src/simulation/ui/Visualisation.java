@@ -20,6 +20,9 @@ public class Visualisation extends Canvas implements IVisualisation {
     private static final double HORIZONTAL_PADDING = 80;
     private static final double ICON_Y = 70;
     private static final double QUEUE_SPACING = 24;
+    private static final double LEGEND_PADDING = 16;
+    private static final double LEGEND_WIDTH = 150;
+    private static final double LEGEND_HEIGHT = 70;
 
     private static final double CUSTOMER_WIDTH = 34;
     private static final double CUSTOMER_HEIGHT = 18;
@@ -29,6 +32,8 @@ public class Visualisation extends Canvas implements IVisualisation {
     private static final Color TEXT_COLOR = Color.web("#3E2723");
     private static final Color INSTORE_COLOR = Color.web("#5C6BC0");
     private static final Color MOBILE_COLOR = Color.web("#26A69A");
+    private static final Color LEGEND_BACKGROUND = Color.web("#FFFFFF", 0.9);
+    private static final Color LEGEND_BORDER = Color.web("#BCAAA4");
 
     private final GraphicsContext gc;
     private final Map<Customer, Integer> customerLaneIndex = new HashMap<>();
@@ -83,6 +88,7 @@ public class Visualisation extends Canvas implements IVisualisation {
         drawFlowGuides();
         drawServicePoints();
         drawCustomers();
+        drawLegend();
     }
 
     private void drawBackground() {
@@ -210,6 +216,39 @@ public class Visualisation extends Canvas implements IVisualisation {
         gc.setFill(Color.WHITE);
         gc.setFont(Font.font("Inter", 10));
         gc.fillText(badge, centerX - 11, centerY + 3);
+    }
+
+    private void drawLegend() {
+        double boxX = getWidth() - LEGEND_WIDTH - LEGEND_PADDING;
+        double boxY = getHeight() - LEGEND_HEIGHT - LEGEND_PADDING;
+
+        gc.setFill(LEGEND_BACKGROUND);
+        gc.fillRoundRect(boxX, boxY, LEGEND_WIDTH, LEGEND_HEIGHT, 12, 12);
+        gc.setStroke(LEGEND_BORDER);
+        gc.setLineWidth(1);
+        gc.strokeRoundRect(boxX, boxY, LEGEND_WIDTH, LEGEND_HEIGHT, 12, 12);
+
+        gc.setFill(TEXT_COLOR);
+        gc.setFont(Font.font("Inter", 12));
+        gc.fillText("Legend", boxX + 12, boxY + 18);
+
+        drawLegendEntry(boxX + 12, boxY + 30, INSTORE_COLOR, "IN = In-store order");
+        drawLegendEntry(boxX + 12, boxY + 50, MOBILE_COLOR, "MB = Mobile order");
+    }
+
+    private void drawLegendEntry(double x, double y, Color color, String text) {
+        gc.setFill(color);
+        gc.fillRoundRect(x, y - 10, 22, 14, 7, 7);
+        gc.setStroke(Color.WHITE);
+        gc.strokeRoundRect(x, y - 10, 22, 14, 7, 7);
+
+        gc.setFill(Color.WHITE);
+        gc.setFont(Font.font("Inter", 9));
+        gc.fillText(text.startsWith("IN") ? "IN" : "MB", x + 4, y);
+
+        gc.setFill(TEXT_COLOR);
+        gc.setFont(Font.font("Inter", 11));
+        gc.fillText(text, x + 32, y + 1);
     }
 
     private enum ServiceLane {

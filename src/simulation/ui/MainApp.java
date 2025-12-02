@@ -31,6 +31,9 @@ public class MainApp extends Application implements ISimulatorUI {
 
     private static final long MIN_DELAY_MS = 5;
     private static final long MAX_DELAY_MS = 2000;
+    private static final String ERROR_BORDER_STYLE = "-fx-border-color: #d32f2f; -fx-border-width: 2;";
+    private static final double MIN_WINDOW_WIDTH = 1100;
+    private static final double MIN_WINDOW_HEIGHT = 800;
 
     private IControllerVtoM controller;
     private TextField time;
@@ -123,6 +126,12 @@ public class MainApp extends Application implements ISimulatorUI {
         time.setPrefWidth(150);
         time.setMaxWidth(150);
         time.setAlignment(Pos.CENTER_RIGHT);
+        time.textProperty().addListener((obs, oldVal, newVal) -> validateTimeFieldImmediate());
+        time.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+            if (!isFocused) {
+                validateTimeFieldImmediate();
+            }
+        });
         delay = new TextField("10");
         delay.setPrefWidth(150);
         delay.setMaxWidth(150);
@@ -131,7 +140,12 @@ public class MainApp extends Application implements ISimulatorUI {
             if (updatingDelayField) {
                 return;
             }
-            handleDelayFieldChange(newVal, false);
+            validateDelayFieldImmediate();
+        });
+        delay.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+            if (!isFocused) {
+                enforceDelayBounds();
+            }
         });
         delaySlider = new Slider(MIN_DELAY_MS, MAX_DELAY_MS, Double.parseDouble(delay.getText()));
         delaySlider.setShowTickLabels(true);
@@ -243,11 +257,13 @@ public class MainApp extends Application implements ISimulatorUI {
         Scene scene = new Scene(hBox);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Coffee Shop Simulation");
+        primaryStage.setMinWidth(MIN_WINDOW_WIDTH);
+        primaryStage.setMinHeight(MIN_WINDOW_HEIGHT);
         primaryStage.show();
 
         onSimulationStopped();
         updateStatus("Idle");
-        renderManualSpeed(delay.getText());
+        validateDelayFieldImmediate();
     }
 
     @Override
@@ -323,28 +339,6 @@ public class MainApp extends Application implements ISimulatorUI {
         statusValue.setText(state);
     }
 
-    private void renderManualSpeed(String candidate) {
-        handleDelayFieldChange(candidate, true);
-    }
-
-    private void handleDelayFieldChange(String candidate, boolean silent) {
-        if (candidate == null || candidate.isBlank()) {
-            currentSpeedLabel.setText("Enter animation speed (ms)");
-            return;
-        }
-        try {
-            long parsed = Math.max(1, Long.parseLong(candidate));
-            if (!silent) {
-                updatingDelayField = true;
-                delaySlider.setValue(parsed);
-                updatingDelayField = false;
-            }
-            currentSpeedLabel.setText(formatDelayText(parsed));
-        } catch (NumberFormatException ex) {
-            currentSpeedLabel.setText("Invalid speed value");
-        }
-    }
-
     private void handleDelaySliderChange(long sliderValue) {
         updatingDelayField = true;
         delay.setText(String.valueOf(sliderValue));
@@ -360,6 +354,7 @@ public class MainApp extends Application implements ISimulatorUI {
         delay.setText(String.valueOf(delayValue));
         delaySlider.setValue(delayValue);
         updatingDelayField = false;
+        setFieldValid(delay);
         currentSpeedLabel.setText(formatDelayText(delayValue));
     }
 
@@ -370,11 +365,14 @@ public class MainApp extends Application implements ISimulatorUI {
     private boolean validateInputs() {
         StringBuilder errors = new StringBuilder();
 
-        parsePositiveDouble(time.getText(), "How long to simulate (min)", errors);
-        Long delayValue = parsePositiveLong(delay.getText(), "Animation speed (ms)", errors);
+        clearValidationStyles();
+
+        parsePositiveDouble(time, "How long to simulate (min)", errors);
+        Long delayValue = parsePositiveLong(delay, "Animation speed (ms)", errors);
 
         if (delayValue != null && (delayValue < MIN_DELAY_MS || delayValue > MAX_DELAY_MS)) {
             errors.append(String.format("Animation speed must be between %d and %d ms.%n", MIN_DELAY_MS, MAX_DELAY_MS));
+            markInvalid(delay);
         }
 
         if (errors.length() > 0) {
@@ -383,36 +381,43 @@ public class MainApp extends Application implements ISimulatorUI {
         }
 
         if (delayValue != null) {
-            updateDelayControls(delayValue);
+            long clamped = Math.max(MIN_DELAY_MS, Math.min(MAX_DELAY_MS, delayValue));
+            updateDelayControls(clamped);
         }
 
         return true;
     }
 
-    private Double parsePositiveDouble(String value, String fieldLabel, StringBuilder errors) {
+    private Double parsePositiveDouble(TextField field, String fieldLabel, StringBuilder errors) {
         try {
-            double parsed = Double.parseDouble(value);
+            double parsed = Double.parseDouble(field.getText());
             if (parsed <= 0) {
                 errors.append(fieldLabel).append(" must be greater than zero.\n");
+                markInvalid(field);
                 return null;
             }
+            setFieldValid(field);
             return parsed;
         } catch (NumberFormatException ex) {
             errors.append(fieldLabel).append(" must be a number.\n");
+            markInvalid(field);
             return null;
         }
     }
 
-    private Long parsePositiveLong(String value, String fieldLabel, StringBuilder errors) {
+    private Long parsePositiveLong(TextField field, String fieldLabel, StringBuilder errors) {
         try {
-            long parsed = Long.parseLong(value);
+            long parsed = Long.parseLong(field.getText());
             if (parsed <= 0) {
                 errors.append(fieldLabel).append(" must be greater than zero.\n");
+                markInvalid(field);
                 return null;
             }
+            setFieldValid(field);
             return parsed;
         } catch (NumberFormatException ex) {
             errors.append(fieldLabel).append(" must be an integer.\n");
+            markInvalid(field);
             return null;
         }
     }
@@ -423,5 +428,51 @@ public class MainApp extends Application implements ISimulatorUI {
         alert.setHeaderText("Please correct the invalid values");
         alert.setContentText(message.trim());
         alert.showAndWait();
+    }
+
+    private void clearValidationStyles() {
+        time.setStyle("");
+        delay.setStyle("");
+    }
+
+    private void markInvalid(TextField field) {
+        field.setStyle(ERROR_BORDER_STYLE);
+    }
+
+    private void setFieldValid(TextField field) {
+        field.setStyle("");
+    }
+
+    private void validateTimeFieldImmediate() {
+        parsePositiveDouble(time, "How long to simulate (min)", new StringBuilder());
+    }
+
+    private void validateDelayFieldImmediate() {
+        StringBuilder tmp = new StringBuilder();
+        Long value = parsePositiveLong(delay, "Animation speed (ms)", tmp);
+        if (value == null) {
+            currentSpeedLabel.setText("Enter animation speed (ms)");
+            return;
+        }
+        if (value < MIN_DELAY_MS || value > MAX_DELAY_MS) {
+            markInvalid(delay);
+            currentSpeedLabel.setText(String.format("Allowed range: %d-%d ms", MIN_DELAY_MS, MAX_DELAY_MS));
+        } else {
+            setFieldValid(delay);
+            currentSpeedLabel.setText(formatDelayText(value));
+        }
+    }
+
+    private void enforceDelayBounds() {
+        String text = delay.getText();
+        if (text == null || text.isBlank()) {
+            return;
+        }
+        try {
+            long parsed = Long.parseLong(text);
+            long clamped = Math.max(MIN_DELAY_MS, Math.min(MAX_DELAY_MS, parsed));
+            updateDelayControls(clamped);
+        } catch (NumberFormatException ignored) {
+        }
     }
 }
