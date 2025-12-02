@@ -33,12 +33,14 @@ public class ServicePoint {
 
     public Customer removeQueue() {
         double currentTime = Clock.getInstance().getTime();
+        double serviceDuration = currentServiceDuration(currentTime);
         finalizeOngoingService(currentTime);
         reserved = false;
         Customer customer = queue.poll();
         if (customer != null) {
             completions++;
             customer.setServiceEndTime(currentTime);
+            customer.addServiceDuration(serviceDuration);
         }
         return customer;
     }
@@ -61,10 +63,15 @@ public class ServicePoint {
     }
 
     private void finalizeOngoingService(double currentTime) {
+        busyTime += currentServiceDuration(currentTime);
+        lastServiceStart = Double.NaN;
+    }
+
+    private double currentServiceDuration(double currentTime) {
         if (reserved && !Double.isNaN(lastServiceStart)) {
-            busyTime += Math.max(0.0, currentTime - lastServiceStart);
-            lastServiceStart = Double.NaN;
+            return Math.max(0.0, currentTime - lastServiceStart);
         }
+        return 0.0;
     }
 
     public boolean isReserved() {

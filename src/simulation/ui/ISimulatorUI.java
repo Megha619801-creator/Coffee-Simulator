@@ -10,4 +10,6 @@ public interface ISimulatorUI {
     IVisualisation getVisualisation();
 
     void showCurrentDelay(long delay);
+
+    void showSummary(SimulationSummary summary);
 }

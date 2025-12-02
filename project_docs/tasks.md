@@ -83,13 +83,13 @@
 
 - [ ] **Visualisation improvements**
   - [x] Add a legend explaining the meaning of labels like IN / MB.
-  - [ ] Adjust colours for better contrast and readability.
-  - [ ] Improve role tooltips (Cashier, Barista, etc.) for non-technical users.
+  - [x] Adjust colours for better contrast and readability.
+  - [x] Improve role tooltips (Cashier, Barista, etc.) for non-technical users.
 
 - [ ] **Enhanced results display**
-  - [ ] Add “Total customers served”.
-  - [ ] Add “Average waiting time”.
-  - [ ] Add simplified readable summaries (e.g., “123 customers, avg wait 1.8 min”).
+  - [x] Add “Total customers served”.
+  - [x] Add “Average waiting time”.
+  - [x] Add simplified readable summaries (e.g., “123 customers, avg wait 1.8 min”).
 
 ### 8. Testing and Documentation
 - [ ] **Automated and manual testing**

@@ -6,11 +6,11 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
@@ -18,6 +18,7 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -25,7 +26,13 @@ import javafx.stage.Stage;
 import simu.framework.Trace;
 import simu.framework.Trace.Level;
 
+import simulation.data.SimulationHistoryRepository;
+
+import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class MainApp extends Application implements ISimulatorUI {
 
@@ -39,9 +46,14 @@ public class MainApp extends Application implements ISimulatorUI {
     private TextField time;
     private TextField delay;
     private Slider delaySlider;
+    private SimulationHistoryRepository historyRepository;
     private Label results;
+    private Label totalServedValue;
+    private Label avgWaitValue;
+    private Label summaryValue;
     private Label statusValue;
     private Label currentSpeedLabel;
+    private ListView<String> historyListView;
     private boolean updatingDelayField;
     private Button startButton;
     private Button slowButton;
@@ -55,6 +67,7 @@ public class MainApp extends Application implements ISimulatorUI {
     public void init() {
         Trace.setTraceLevel(Level.INFO);
         controller = new Controller(this);
+        historyRepository = new SimulationHistoryRepository();
     }
 
     @Override
@@ -160,13 +173,32 @@ public class MainApp extends Application implements ISimulatorUI {
             handleDelaySliderChange(Math.round(newVal.doubleValue()));
         });
         results = new Label();
+        totalServedValue = new Label("-");
+        avgWaitValue = new Label("-");
+        summaryValue = new Label("Run a simulation to see the summary.");
+        summaryValue.setWrapText(true);
+        summaryValue.setMaxWidth(220);
         statusValue = new Label("Idle");
         statusValue.setFont(Font.font("Tahoma", FontWeight.NORMAL, 14));
         currentSpeedLabel = new Label();
         currentSpeedLabel.setFont(Font.font("Tahoma", FontWeight.NORMAL, 13));
         currentSpeedLabel.setStyle("-fx-text-fill: #333333;");
+        historyListView = new ListView<>();
+        historyListView.setPrefHeight(180);
+        historyListView.setFocusTraversable(false);
+        historyListView.setPlaceholder(new Label("No previous runs yet."));
 
-        display = new Visualisation(450, 250);
+        Visualisation visualCanvas = new Visualisation(450, 250);
+        display = visualCanvas;
+        StackPane visualisationContainer = new StackPane(visualCanvas);
+        visualisationContainer.setMinWidth(400);
+        visualisationContainer.setMinHeight(500);
+        visualisationContainer.setPrefHeight(500);
+        visualisationContainer.setMaxHeight(500);
+        visualisationContainer.widthProperty().addListener(
+                (obs, oldV, newV) -> visualCanvas.resizeCanvas(newV.doubleValue(), 500));
+        visualisationContainer.heightProperty().addListener(
+                (obs, oldV, newV) -> visualCanvas.resizeCanvas(visualisationContainer.getWidth(), 500));
 
         Label description = new Label(
                 "Simulates a single coffee shop where customers move through cashier, barista, finishing, and pickup stages.");
@@ -230,6 +262,12 @@ public class MainApp extends Application implements ISimulatorUI {
         resultsTitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 15));
         Label totalLabel = new Label("Simulation finished after (min):");
         totalLabel.setFont(Font.font("Tahoma", FontWeight.NORMAL, 14));
+        Label totalServedLabel = new Label("Total customers served:");
+        totalServedLabel.setFont(Font.font("Tahoma", FontWeight.NORMAL, 14));
+        Label avgWaitLabel = new Label("Average waiting time (min):");
+        avgWaitLabel.setFont(Font.font("Tahoma", FontWeight.NORMAL, 14));
+        Label summaryLabel = new Label("Summary:");
+        summaryLabel.setFont(Font.font("Tahoma", FontWeight.NORMAL, 14));
         Label statusLabel = new Label("Status:");
         statusLabel.setFont(Font.font("Tahoma", FontWeight.NORMAL, 14));
         GridPane resultsGrid = new GridPane();
@@ -239,20 +277,30 @@ public class MainApp extends Application implements ISimulatorUI {
         resultsGrid.setVgap(8);
         resultsGrid.add(totalLabel, 0, 0);
         resultsGrid.add(results, 1, 0);
-        resultsGrid.add(statusLabel, 0, 1);
-        resultsGrid.add(statusValue, 1, 1);
+        resultsGrid.add(totalServedLabel, 0, 1);
+        resultsGrid.add(totalServedValue, 1, 1);
+        resultsGrid.add(avgWaitLabel, 0, 2);
+        resultsGrid.add(avgWaitValue, 1, 2);
+        resultsGrid.add(summaryLabel, 0, 3);
+        resultsGrid.add(summaryValue, 1, 3);
+        resultsGrid.add(statusLabel, 0, 4);
+        resultsGrid.add(statusValue, 1, 4);
 
         VBox leftPane = new VBox(16);
         leftPane.setPadding(new Insets(15));
         leftPane.setAlignment(Pos.TOP_LEFT);
+        Label historyTitle = new Label("History");
+        historyTitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 15));
+
         leftPane.getChildren()
                 .addAll(description, settingsTitle, settingsGrid, controlsTitle, controlsSection, resultsTitle,
-                        resultsGrid);
+                        resultsGrid, historyTitle, historyListView);
 
         HBox hBox = new HBox();
         hBox.setPadding(new Insets(15));
         hBox.setSpacing(10);
-        hBox.getChildren().addAll(leftPane, (Canvas) display);
+        hBox.getChildren().addAll(leftPane, visualisationContainer);
+        HBox.setHgrow(visualisationContainer, Priority.ALWAYS);
 
         Scene scene = new Scene(hBox);
         primaryStage.setScene(scene);
@@ -264,6 +312,7 @@ public class MainApp extends Application implements ISimulatorUI {
         onSimulationStopped();
         updateStatus("Idle");
         validateDelayFieldImmediate();
+        refreshHistoryViewAsync();
     }
 
     @Override
@@ -292,6 +341,15 @@ public class MainApp extends Application implements ISimulatorUI {
     @Override
     public void showCurrentDelay(long delayValue) {
         Platform.runLater(() -> updateDelayControls(delayValue));
+    }
+
+    @Override
+    public void showSummary(SimulationSummary summary) {
+        setEndingTime(summary.simulationTime());
+        totalServedValue.setText(String.valueOf(summary.totalCustomersServed()));
+        avgWaitValue.setText(summary.formattedAverageWaitingTime());
+        summaryValue.setText(summary.toSummaryLine());
+        appendSummaryAsync(summary);
     }
 
     public static void main(String[] args) {
@@ -360,6 +418,42 @@ public class MainApp extends Application implements ISimulatorUI {
 
     private String formatDelayText(long delayValue) {
         return delayValue + " ms per step";
+    }
+
+    private void appendSummaryAsync(SimulationSummary summary) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                historyRepository.append(summary);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }).whenComplete((unused, throwable) -> {
+            if (throwable != null) {
+                Platform.runLater(() -> summaryValue.setText("Saved locally, but history write failed"));
+            } else {
+                refreshHistoryViewAsync();
+            }
+        });
+    }
+
+    private void refreshHistoryViewAsync() {
+        CompletableFuture.supplyAsync(() -> {
+            try {
+                return historyRepository.readAll();
+            } catch (IOException e) {
+                return List.<SimulationHistoryRepository.SimulationHistoryEntry>of();
+            }
+        }).thenAccept(entries -> Platform.runLater(() -> {
+            if (entries.isEmpty()) {
+                historyListView.getItems().clear();
+                return;
+            }
+            List<String> formatted = entries.stream()
+                    .filter(entry -> !entry.isEmpty())
+                    .map(SimulationHistoryRepository.SimulationHistoryEntry::toDisplayString)
+                    .collect(Collectors.toList());
+            historyListView.getItems().setAll(formatted);
+        }));
     }
 
     private boolean validateInputs() {

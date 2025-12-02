@@ -2,14 +2,20 @@ package simulation.ui;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.stage.Window;
+import javafx.util.Duration;
 import simulation.model.Customer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Draws a clean horizontal flow between service points using custom icons and
@@ -23,21 +29,29 @@ public class Visualisation extends Canvas implements IVisualisation {
     private static final double LEGEND_PADDING = 16;
     private static final double LEGEND_WIDTH = 150;
     private static final double LEGEND_HEIGHT = 70;
+    private static final double ICON_HIT_RADIUS = 45;
+    private static final double ICON_SIZE = 70;
 
     private static final double CUSTOMER_WIDTH = 34;
     private static final double CUSTOMER_HEIGHT = 18;
 
-    private static final Color BACKGROUND = Color.web("#FFF7E0");
-    private static final Color GUIDE_COLOR = Color.web("#D7CCC8");
-    private static final Color TEXT_COLOR = Color.web("#3E2723");
-    private static final Color INSTORE_COLOR = Color.web("#5C6BC0");
-    private static final Color MOBILE_COLOR = Color.web("#26A69A");
-    private static final Color LEGEND_BACKGROUND = Color.web("#FFFFFF", 0.9);
-    private static final Color LEGEND_BORDER = Color.web("#BCAAA4");
+    private static final Color BACKGROUND = Color.web("#FFF5E9");
+    private static final Color GUIDE_COLOR = Color.web("#BCAAA4");
+    private static final Color TEXT_COLOR = Color.web("#2B2118");
+    private static final Color INSTORE_COLOR = Color.web("#4A63D8");
+    private static final Color MOBILE_COLOR = Color.web("#00897B");
+    private static final Color LEGEND_BACKGROUND = Color.web("#FFFFFF", 0.95);
+    private static final Color LEGEND_BORDER = Color.web("#8D6E63");
 
     private final GraphicsContext gc;
     private final Map<Customer, Integer> customerLaneIndex = new HashMap<>();
     private final List<List<Customer>> laneQueues = new ArrayList<>();
+    private final Tooltip laneTooltip;
+    private ServiceLane highlightedLane;
+    private final Image cashierIcon;
+    private final Image baristaIcon;
+    private final Image finishingIcon;
+    private final Image pickupIcon;
 
     public Visualisation(int w, int h) {
         super(Math.max(w, 680), Math.max(h, 320));
@@ -45,6 +59,21 @@ public class Visualisation extends Canvas implements IVisualisation {
         for (int i = 0; i < ServiceLane.values().length; i++) {
             laneQueues.add(new ArrayList<>());
         }
+        laneTooltip = new Tooltip();
+        laneTooltip.setShowDelay(Duration.millis(120));
+        laneTooltip.setHideDelay(Duration.millis(80));
+        laneTooltip.setAutoHide(true);
+
+        cashierIcon = loadIcon("/icons/cashier.png");
+        baristaIcon = loadIcon("/icons/barista.png");
+        finishingIcon = loadIcon("/icons/prepare.png");
+        pickupIcon = loadIcon("/icons/ready.png");
+
+        setOnMouseMoved(this::handleMouseMoved);
+        setOnMouseExited(event -> {
+            highlightedLane = null;
+            laneTooltip.hide();
+        });
         clearDisplay();
     }
 
@@ -125,23 +154,35 @@ public class Visualisation extends Canvas implements IVisualisation {
             double x = laneX(i);
             drawServiceIcon(ServiceLane.values()[i], x, ICON_Y);
             gc.setFill(TEXT_COLOR);
-            gc.setFont(Font.font("Inter", 15));
+            gc.setFont(Font.font("Inter", javafx.scene.text.FontWeight.SEMI_BOLD, 16));
             gc.fillText(ServiceLane.values()[i].label, x - 35, ICON_Y + 70);
         }
     }
 
     private void drawServiceIcon(ServiceLane lane, double cx, double cy) {
-        gc.setStroke(TEXT_COLOR);
-        gc.setLineWidth(1.8);
-        switch (lane) {
-            case CASHIER -> drawCashierIcon(cx, cy);
-            case BARISTA -> drawBaristaIcon(cx, cy);
-            case FINISHING -> drawFinishingIcon(cx, cy);
-            case PICKUP -> drawPickupIcon(cx, cy);
+        Image icon = switch (lane) {
+            case CASHIER -> cashierIcon;
+            case BARISTA -> baristaIcon;
+            case FINISHING -> finishingIcon;
+            case PICKUP -> pickupIcon;
+        };
+        if (icon != null) {
+            double x = cx - ICON_SIZE / 2;
+            double y = cy - ICON_SIZE / 2;
+            gc.drawImage(icon, x, y, ICON_SIZE, ICON_SIZE);
+        } else {
+            gc.setStroke(TEXT_COLOR);
+            gc.setLineWidth(1.8);
+            switch (lane) {
+                case CASHIER -> drawFallbackCashier(cx, cy);
+                case BARISTA -> drawFallbackBarista(cx, cy);
+                case FINISHING -> drawFallbackFinishing(cx, cy);
+                case PICKUP -> drawFallbackPickup(cx, cy);
+            }
         }
     }
 
-    private void drawCashierIcon(double cx, double cy) {
+    private void drawFallbackCashier(double cx, double cy) {
         gc.setFill(Color.web("#FFCC80"));
         gc.fillOval(cx - 14, cy - 32, 28, 28);
         gc.setStroke(TEXT_COLOR);
@@ -152,7 +193,7 @@ public class Visualisation extends Canvas implements IVisualisation {
         gc.strokeLine(cx - 22, cy + 14, cx + 22, cy + 14);
     }
 
-    private void drawBaristaIcon(double cx, double cy) {
+    private void drawFallbackBarista(double cx, double cy) {
         gc.setFill(Color.web("#C5E1A5"));
         gc.fillRoundRect(cx - 22, cy - 22, 44, 40, 12, 12);
         gc.setStroke(TEXT_COLOR);
@@ -163,7 +204,7 @@ public class Visualisation extends Canvas implements IVisualisation {
         gc.strokeLine(cx, cy - 12, cx, cy + 18);
     }
 
-    private void drawPickupIcon(double cx, double cy) {
+    private void drawFallbackPickup(double cx, double cy) {
         double[] xPoints = { cx - 20, cx + 20, cx + 14, cx - 14 };
         double[] yPoints = { cy - 12, cy - 12, cy + 32, cy + 32 };
         gc.setFill(Color.web("#FFE0B2"));
@@ -173,7 +214,7 @@ public class Visualisation extends Canvas implements IVisualisation {
         gc.strokeLine(cx - 12, cy - 16, cx + 12, cy - 16);
     }
 
-    private void drawFinishingIcon(double cx, double cy) {
+    private void drawFallbackFinishing(double cx, double cy) {
         gc.setFill(Color.web("#FFE082"));
         gc.fillRoundRect(cx - 18, cy - 24, 36, 32, 8, 8);
         gc.setStroke(TEXT_COLOR);
@@ -251,16 +292,50 @@ public class Visualisation extends Canvas implements IVisualisation {
         gc.fillText(text, x + 32, y + 1);
     }
 
+    private void handleMouseMoved(MouseEvent event) {
+        ServiceLane lane = findLaneAt(event.getX(), event.getY());
+        if (lane == null) {
+            highlightedLane = null;
+            laneTooltip.hide();
+            return;
+        }
+        if (lane == highlightedLane && laneTooltip.isShowing()) {
+            return;
+        }
+        highlightedLane = lane;
+        laneTooltip.setText(lane.description);
+        Window window = getScene() != null ? getScene().getWindow() : null;
+        if (window == null) {
+            return;
+        }
+        laneTooltip.show(this, event.getScreenX() + 12, event.getScreenY() + 8);
+    }
+
+    private ServiceLane findLaneAt(double mouseX, double mouseY) {
+        for (int i = 0; i < ServiceLane.values().length; i++) {
+            double laneCenterX = laneX(i);
+            double laneCenterY = ICON_Y;
+            double dx = mouseX - laneCenterX;
+            double dy = mouseY - laneCenterY;
+            if (Math.hypot(dx, dy) <= ICON_HIT_RADIUS) {
+                return ServiceLane.values()[i];
+            }
+        }
+        return null;
+    }
+
     private enum ServiceLane {
-        CASHIER("Cashier"),
-        BARISTA("Barista"),
-        FINISHING("Finishing"),
-        PICKUP("Pickup");
+        CASHIER("Cashier", "Cashier – greets customers, takes new orders, and handles payment."),
+        BARISTA("Barista", "Barista – prepares espresso shots and steams milk for every drink."),
+        FINISHING("Finishing", "Finishing – adds toppings, checks accuracy, and bags food items."),
+        PICKUP("Pickup", "Pickup – calls out names and hands drinks to waiting guests.");
 
         private final String label;
+        private final String description;
 
-        ServiceLane(String label) {
+        ServiceLane(String label, String description) {
             this.label = label;
+            this.description = description;
         }
     }
 
@@ -272,5 +347,30 @@ public class Visualisation extends Canvas implements IVisualisation {
         double available = Math.max(1, getWidth() - 2 * HORIZONTAL_PADDING);
         double step = available / (laneCount - 1);
         return HORIZONTAL_PADDING + index * step;
+    }
+
+    public void resizeCanvas(double width, double height) {
+        double newWidth = Math.max(1, width);
+        double newHeight = Math.max(1, height);
+        boolean changed = false;
+        if (newWidth != getWidth()) {
+            setWidth(newWidth);
+            changed = true;
+        }
+        if (newHeight != getHeight()) {
+            setHeight(newHeight);
+            changed = true;
+        }
+        if (changed) {
+            drawScene();
+        }
+    }
+
+    private Image loadIcon(String resourcePath) {
+        try {
+            return new Image(Objects.requireNonNull(getClass().getResourceAsStream(resourcePath)));
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

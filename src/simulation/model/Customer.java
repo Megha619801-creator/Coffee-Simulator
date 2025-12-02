@@ -7,6 +7,7 @@ public class Customer {
     private double arrivalTime;
     private double serviceStartTime;
     private double serviceEndTime;
+    private double totalServiceDuration;
 
     public Customer(String type, double arrivalTime) {
         this.id = ++counter;
@@ -53,6 +54,24 @@ public class Customer {
             return 0.0;
         }
         return serviceEndTime - arrivalTime;
+    }
+
+    public void addServiceDuration(double duration) {
+        if (duration > 0) {
+            totalServiceDuration += duration;
+        }
+    }
+
+    public double getTotalServiceDuration() {
+        return totalServiceDuration;
+    }
+
+    public double getTotalWaitingTime() {
+        double response = getResponseTime();
+        if (response <= 0) {
+            return 0.0;
+        }
+        return Math.max(0.0, response - totalServiceDuration);
     }
 
     @Override

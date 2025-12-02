@@ -9,6 +9,8 @@ import simu.model.MyEngine;
 public class Controller implements IControllerVtoM, IControllerMtoV {
     private IEngine engine;
     private final ISimulatorUI ui;
+    private int totalCustomersServed;
+    private double cumulativeWaitingTime;
 
     public Controller(ISimulatorUI ui) {
         this.ui = ui;
@@ -25,6 +27,8 @@ public class Controller implements IControllerVtoM, IControllerMtoV {
         engine.setDelay(ui.getDelay());
         ui.showCurrentDelay(engine.getDelay());
         ui.getVisualisation().clearDisplay();
+        totalCustomersServed = 0;
+        cumulativeWaitingTime = 0.0;
         ((Thread) engine).start();
     }
 
@@ -50,7 +54,9 @@ public class Controller implements IControllerVtoM, IControllerMtoV {
 
     @Override
     public void showEndTime(double time) {
-        Platform.runLater(() -> ui.setEndingTime(time));
+        double averageWaiting = totalCustomersServed == 0 ? 0.0 : cumulativeWaitingTime / totalCustomersServed;
+        SimulationSummary summary = new SimulationSummary(time, totalCustomersServed, averageWaiting);
+        Platform.runLater(() -> ui.showSummary(summary));
         engine = null;
     }
 
@@ -61,6 +67,8 @@ public class Controller implements IControllerVtoM, IControllerMtoV {
 
     @Override
     public void removeCustomer(Customer c) {
+        totalCustomersServed++;
+        cumulativeWaitingTime += c.getTotalWaitingTime();
         Platform.runLater(() -> ui.getVisualisation().removeCustomer(c));
     }
 
