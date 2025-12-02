@@ -61,6 +61,36 @@
   - [x] Choose readable fonts and colours.
   - [x] Keep layout simple and intuitive for non-technical users.
 
+### 7.1 UI Improvement Tasks
+- [ ] **Improve terminology and labels**
+  - [x] Rename technical labels to user-friendly names (e.g., “Simulation time” → “How long to simulate (min)”).
+  - [x] Rename “Delay” to “Animation speed (ms)” and add a short explanation.
+  - [x] Add a short description text explaining what the simulator does.
+
+- [ ] **Improve layout and grouping**
+  - [x] Group settings into blocks: Simulation Settings, Controls, and Results.
+  - [ ] Add spacing and align input fields for a cleaner layout.
+  - [ ] Add a status label (Idle / Running / Paused / Finished).
+
+- [ ] **Improve animation controls**
+  - [ ] Add clearer buttons for speed control and state transitions.
+  - [ ] Consider replacing numeric delay input with a Slider for animation speed.
+
+- [ ] **Input validation**
+  - [ ] Validate numeric input for simulation time and delay.
+  - [ ] Show an Alert window when invalid values are entered.
+  - [ ] Highlight invalid fields with a red border.
+
+- [ ] **Visualisation improvements**
+  - [ ] Add a legend explaining the meaning of labels like IN / MB.
+  - [ ] Adjust colours for better contrast and readability.
+  - [ ] Improve role tooltips (Cashier, Barista, etc.) for non-technical users.
+
+- [ ] **Enhanced results display**
+  - [ ] Add “Total customers served”.
+  - [ ] Add “Average waiting time”.
+  - [ ] Add simplified readable summaries (e.g., “123 customers, avg wait 1.8 min”).
+
 ### 8. Testing and Documentation
 - [ ] **Automated and manual testing**
   - [ ] Add small JUnit tests or test programs for critical classes (`Clock`, `EventList`, `ServicePoint`, `ArrivalProcess`, etc.).
@@ -68,5 +98,3 @@
 - [ ] **Javadoc and project report**
   - [ ] Write Javadoc for all model classes and their methods/attributes (including private ones).
   - [ ] Maintain the written project document using the provided `ProjectWorkDocumentTemplate`, making sure it stays in sync with the implemented simulator.
-
-

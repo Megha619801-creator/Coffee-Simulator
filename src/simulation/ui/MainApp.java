@@ -11,6 +11,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
@@ -99,35 +100,64 @@ public class MainApp extends Application implements ISimulatorUI {
 
         display = new Visualisation(450, 250);
 
-        GridPane grid = new GridPane();
-        grid.setAlignment(Pos.CENTER);
-        grid.setVgap(10);
-        grid.setHgap(5);
+        Label description = new Label(
+                "Simulates a single coffee shop where customers move through cashier, barista, finishing, and pickup stages.");
+        description.setWrapText(true);
+        description.setMaxWidth(260);
 
-        Label timeLabel = new Label("Simulation time:");
+        Label settingsTitle = new Label("Simulation Settings");
+        settingsTitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 15));
+        Label timeLabel = new Label("How long to simulate (min):");
         timeLabel.setFont(Font.font("Tahoma", FontWeight.NORMAL, 14));
-        Label delayLabel = new Label("Delay:");
+        Label delayLabel = new Label("Animation speed (ms):");
         delayLabel.setFont(Font.font("Tahoma", FontWeight.NORMAL, 14));
-        Label totalLabel = new Label("Total time:");
-        totalLabel.setFont(Font.font("Tahoma", FontWeight.NORMAL, 14));
+        Label animationHint = new Label("Higher value = slower movement updates.");
+        animationHint.setFont(Font.font("Tahoma", FontWeight.NORMAL, 11));
+        animationHint.setWrapText(true);
+        animationHint.setMaxWidth(180);
 
-        grid.add(timeLabel, 0, 0);
-        grid.add(time, 1, 0);
-        grid.add(delayLabel, 0, 1);
-        grid.add(delay, 1, 1);
-        grid.add(totalLabel, 0, 2);
-        grid.add(results, 1, 2);
-        grid.add(startButton, 0, 3);
-        grid.add(speedUpButton, 0, 4);
-        grid.add(slowButton, 1, 4);
-        grid.add(pauseButton, 0, 5);
-        grid.add(resumeButton, 1, 5);
-        grid.add(stepButton, 0, 6);
+        GridPane settingsGrid = new GridPane();
+        settingsGrid.setVgap(10);
+        settingsGrid.setHgap(8);
+        settingsGrid.add(timeLabel, 0, 0);
+        settingsGrid.add(time, 1, 0);
+        settingsGrid.add(delayLabel, 0, 1);
+        settingsGrid.add(delay, 1, 1);
+        settingsGrid.add(animationHint, 1, 2);
+
+        Label controlsTitle = new Label("Controls");
+        controlsTitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 15));
+        GridPane controlsGrid = new GridPane();
+        controlsGrid.setHgap(8);
+        controlsGrid.setVgap(10);
+        controlsGrid.add(startButton, 0, 0, 2, 1);
+        controlsGrid.add(speedUpButton, 0, 1);
+        controlsGrid.add(slowButton, 1, 1);
+        controlsGrid.add(pauseButton, 0, 2);
+        controlsGrid.add(resumeButton, 1, 2);
+        controlsGrid.add(stepButton, 0, 3, 2, 1);
+
+        Label resultsTitle = new Label("Results");
+        resultsTitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 15));
+        Label totalLabel = new Label("Simulation finished after (min):");
+        totalLabel.setFont(Font.font("Tahoma", FontWeight.NORMAL, 14));
+        GridPane resultsGrid = new GridPane();
+        resultsGrid.setHgap(8);
+        resultsGrid.setVgap(8);
+        resultsGrid.add(totalLabel, 0, 0);
+        resultsGrid.add(results, 1, 0);
+
+        VBox leftPane = new VBox(12);
+        leftPane.setPadding(new Insets(15));
+        leftPane.setAlignment(Pos.TOP_LEFT);
+        leftPane.getChildren()
+                .addAll(description, settingsTitle, settingsGrid, controlsTitle, controlsGrid, resultsTitle,
+                        resultsGrid);
 
         HBox hBox = new HBox();
         hBox.setPadding(new Insets(15));
         hBox.setSpacing(10);
-        hBox.getChildren().addAll(grid, (Canvas) display);
+        hBox.getChildren().addAll(leftPane, (Canvas) display);
 
         Scene scene = new Scene(hBox);
         primaryStage.setScene(scene);
