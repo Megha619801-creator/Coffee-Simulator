@@ -32,4 +32,5 @@ bin/
 *.class
 *.class
 cafetria-simulator/
-/.idea
+/### Maven build output
+/target
