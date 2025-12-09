@@ -15,6 +15,7 @@
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javafx.version>21.0.2</javafx.version>
+        <junit.jupiter.version>5.10.0</junit.jupiter.version> <!-- ADDED: JUnit 5 version property -->
     </properties>
 
     <dependencies>
@@ -33,40 +34,40 @@
             <artifactId>javafx-base</artifactId>
             <version>${javafx.version}</version>
         </dependency>
-        <!-- JUnit 5 for tests -->
+
+        <!-- JUnit 5 API -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.10.0</version>
+            <version>${junit.jupiter.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- JUnit 5 engine -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.10.0</version>
+            <version>${junit.jupiter.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
+    <pluginRepositories>
+        <pluginRepository>
+            <id>central</id>
+            <name>Maven Central</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <build>
-        <sourceDirectory>${project.basedir}/src</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.8</version>
+                <version>0.0.8</version> <!-- FIXED: javafx-maven-plugin version must be 0.0.x, not the JavaFX library version -->
                 <configuration>
                     <mainClass>simulation.ui.MainApp</mainClass>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
-                <configuration>
-                    <excludes>
-                        <exclude>test/**</exclude>
-                    </excludes>
                 </configuration>
             </plugin>
             <!-- Surefire for running JUnit 5 tests -->
