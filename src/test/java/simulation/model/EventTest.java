@@ -3,7 +3,18 @@ package simulation.model;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+/**
+ * Unit tests for {@link Event}.
+ *
+ * <p>
+ * Verifies that events are comparable based on time
+ * and that string representations contain meaningful information.
+ * </p>
+ *
+ * <p>
+ * Ensures correct ordering behavior required by the simulation scheduler.
+ * </p>
+ */
 class EventTest {
 
     @Test

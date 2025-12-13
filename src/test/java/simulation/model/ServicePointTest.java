@@ -5,7 +5,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+/**
+ * Unit tests for {@link simulation.model.ServicePoint}.
+ *
+ * <p>Tests queue management, busy state handling, and
+ * deterministic service time generation.</p>
+ */
 class ServicePointTest {
 
     private ServicePoint sp;

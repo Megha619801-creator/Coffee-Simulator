@@ -14,11 +14,21 @@ import simulation.statistics.StatisticsCollector;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Integration-style check with 4 service points and branching paths
- * to align with the project requirement of a non-linear network.
+ * Integration test for a multi-service-point simulation network.
+ * <p>
+ * This test validates correct behavior of a non-linear service network
+ * with branching paths, ensuring arrivals, routing, departures, and
+ * statistics collection work together correctly.
  */
 class MultiServiceNetworkIntegrationTest {
 
+    /**
+     * Tests a four-service-point network with branching paths:
+     * Entry → {PrepA, PrepB} → Pickup.
+     * <p>
+     * Verifies that arrivals, departures, service times, throughput,
+     * and utilization metrics are computed correctly.
+     */
     @Test
     void fourServicePointsBranchingScenarioProducesExpectedStats() {
         Clock clock = Clock.getInstance();
@@ -92,7 +102,13 @@ class MultiServiceNetworkIntegrationTest {
         assertEquals(0.6, snapshot.getThroughput(), 1e-9);
         assertEquals(0.72, snapshot.getSystemUtilization(), 1e-9);
     }
-
+    /**
+     * Starts service for the next waiting customer if the service point is idle.
+     *
+     * @param sp the service point
+     * @param eventList the event list used by the simulator
+     * @param clock the simulation clock
+     */
     private void startServiceIfIdle(ServicePoint sp, EventList eventList, Clock clock) {
         if (sp.isBusy() || !sp.hasWaitingCustomer()) {
             return;

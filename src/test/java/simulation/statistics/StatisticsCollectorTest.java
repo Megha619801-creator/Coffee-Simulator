@@ -7,7 +7,14 @@ import simulation.model.Event;
 import simulation.model.ServicePoint;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+/**
+ * Unit test for {@link StatisticsCollector}.
+ * <p>
+ * This test verifies that the statistics collector correctly aggregates
+ * system-level and per–service point metrics when multiple terminal
+ * service points are involved.
+ * </p>
+ *  */
 class StatisticsCollectorTest {
 
     private StatisticsCollector stats;

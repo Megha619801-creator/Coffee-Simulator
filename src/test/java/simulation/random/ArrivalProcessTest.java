@@ -7,7 +7,18 @@ import simulation.model.EventList;
 import simulation.model.ServicePoint;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+/**
+ * Unit tests for the {@link ArrivalProcess} class.
+ * <p>
+ * Verifies that scheduling the next arrival:
+ * <ul>
+ *   <li>Adds an {@link Event} to the {@link EventList}</li>
+ *   <li>Creates an ARRIVAL event at the correct future time</li>
+ *   <li>Associates the event with the correct {@link ServicePoint}</li>
+ *   <li>Initializes the {@link Customer} with the correct type and arrival time</li>
+ * </ul>
+ * A deterministic generator is used to ensure predictable and repeatable behavior.
+ */
 class ArrivalProcessTest {
 
     @Test

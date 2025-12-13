@@ -8,6 +8,15 @@ import simulation.statistics.StatisticsCollector;
 import simulation.statistics.SimulationStatistics;
 
 import static org.junit.jupiter.api.Assertions.*;
+/**
+ * Integration tests for {@link StatisticsCollector}.
+ *
+ * <p>
+ * Uses a deterministic single-service-point scenario
+ * to validate system-level statistics such as arrivals,
+ * departures, waiting time, and service time.
+ * </p>
+ */
 
 public class StatisticsIntegrationTest {
 

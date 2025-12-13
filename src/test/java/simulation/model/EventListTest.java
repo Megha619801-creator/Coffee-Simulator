@@ -5,7 +5,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+/**
+ * Unit tests for {@link EventList}.
+ *
+ * <p>Ensures events are ordered correctly by time
+ * and retrieved in priority order.</p>
+ */
 class EventListTest {
 
     private EventList list;
