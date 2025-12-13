@@ -17,6 +17,25 @@ import simulation.statistics.StatisticsCollector;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The Simulator class controls the execution of the discrete-event
+ * simulation for the cafe system.
+ *
+ * <p>It manages:
+ * <ul>
+ *   <li>Event scheduling and execution</li>
+ *   <li>Simulation clock progression</li>
+ *   <li>Customer arrivals, services, and routing</li>
+ *   <li>Statistics collection and reporting</li>
+ * </ul>
+ *
+ * The simulator follows a three-phase simulation cycle:
+ * <ul>
+ *   <li>A-phase: Advance simulation time</li>
+ *   <li>B-phase: Execute scheduled events</li>
+ *   <li>C-phase: Start new services if possible</li>
+ * </ul>
+ */
 public class Simulator {
     private final EventList eventList = new EventList();
     private final Clock clock = Clock.getInstance();

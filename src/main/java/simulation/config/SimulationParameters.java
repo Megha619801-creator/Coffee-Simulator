@@ -1,7 +1,16 @@
 package simulation.config;
 
 /**
- * Immutable container for all configurable model parameters.
+ * Immutable container for all configurable parameters of the simulation model.
+ * <p>
+ * This class holds parameters such as arrival rates, service times, service
+ * variances, and the simulation duration. Once constructed, instances are
+ * immutable.
+ * </p>
+ * <p>
+ * Use {@link #builder()} to create instances. Default values are provided and
+ * can be obtained via {@link #defaults()}.
+ * </p>
  */
 public final class SimulationParameters {
 

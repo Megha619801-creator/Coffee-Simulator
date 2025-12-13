@@ -1,4 +1,17 @@
 package simulation.model;
+/**
+ * Represents a customer in the cafe simulation.
+ * <p>
+ * Each customer has:
+ * <ul>
+ *   <li>A unique ID</li>
+ *   <li>A type (INSTORE or MOBILE)</li>
+ *   <li>Arrival, service, and departure times</li>
+ * </ul>
+ *
+ * Customer objects are immutable in identity but mutable in
+ * timing information during simulation.
+ */
 
 public class Customer {
     private static int counter = 0;
@@ -9,6 +22,12 @@ public class Customer {
     private double serviceEndTime;
     private double totalServiceDuration;
 
+    /**
+     * Creates a new customer.
+     *
+     * @param type customer type
+     * @param arrivalTime arrival time into the system
+     */
     public Customer(String type, double arrivalTime) {
         this.id = ++counter;
         this.type = type;

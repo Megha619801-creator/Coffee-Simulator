@@ -1,5 +1,13 @@
 package simulation.model;
 
+/**
+ * Represents a discrete event in the simulation.
+ *
+ * <p>Events are ordered by time and can be either ARRIVAL or DEPARTURE
+ * events. Each event is associated with a customer and a target
+ * service point.
+ */
+
 public class Event implements Comparable<Event> {
     public static final int ARRIVAL = 1;
     public static final int DEPARTURE = 2;

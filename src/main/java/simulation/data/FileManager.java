@@ -12,15 +12,42 @@ import java.nio.file.Path;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Properties;
-
 /**
- * Loads simulation parameters from a properties file.
+ * Utility class for reading simulation configuration and writing simulation results.
+ * <p>
+ * This class provides methods to:
+ * <ul>
+ *     <li>Load {@link SimulationParameters} from a properties file.</li>
+ *     <li>Write {@link SimulationStatistics} to a CSV file in a structured format.</li>
+ * </ul>
+ * <p>
+ * All methods are static; the class cannot be instantiated.
+ * </p>
  */
 public class FileManager {
 
     private FileManager() {
     }
-
+    /**
+     * Loads simulation parameters from a properties file.
+     * <p>
+     * Supported properties:
+     * <ul>
+     *     <li>instore.arrival.mean</li>
+     *     <li>mobile.arrival.mean</li>
+     *     <li>cashier.service.mean</li>
+     *     <li>barista.service.mean</li>
+     *     <li>barista.service.variance</li>
+     *     <li>shelf.service.min</li>
+     *     <li>shelf.service.max</li>
+     *     <li>delivery.service.time</li>
+     *     <li>simulation.duration</li>
+     * </ul>
+     *
+     * @param path path to the properties file
+     * @return a {@link SimulationParameters} object built from the file
+     * @throws IOException if the file cannot be read
+     */
     public static SimulationParameters loadParameters(Path path) throws IOException {
         Properties props = new Properties();
         try (InputStream in = Files.newInputStream(path)) {
@@ -56,7 +83,20 @@ public class FileManager {
         }
         return builder.build();
     }
-
+    /**
+     * Writes simulation statistics to a CSV file.
+     * <p>
+     * The output contains two sections:
+     * <ul>
+     *     <li>System summary metrics (simulation time, arrivals, departures, averages, etc.)</li>
+     *     <li>Per-service-point statistics (arrivals, completions, utilization, throughput, average service time)</li>
+     * </ul>
+     *
+     * @param outputFile path to the CSV output file
+     * @param statistics simulation statistics to write
+     * @throws IOException if the file cannot be written
+     * @throws IllegalArgumentException if statistics is null
+     */
     public static void writeStatistics(Path outputFile, SimulationStatistics statistics) throws IOException {
         if (statistics == null) {
             throw new IllegalArgumentException("statistics must not be null");

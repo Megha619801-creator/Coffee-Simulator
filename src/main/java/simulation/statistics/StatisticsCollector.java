@@ -13,8 +13,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Collects per service point and system-wide statistics while the simulator
- * runs.
+ * Collects statistics for both individual service points and the overall system
+ * during a simulation run.
+ * <p>
+ * Tracks per-service-point metrics such as arrivals, departures, and total service time,
+ * and system-level metrics such as total arrivals, departures, waiting time, service time,
+ * and response time.
+ * </p>
+ * <p>
+ * This class implements {@link SimulationListener} and should be registered with the simulation engine
+ * to automatically update statistics when events occur.
+ * </p>
  */
 public class StatisticsCollector implements SimulationListener {
 
@@ -27,14 +36,21 @@ public class StatisticsCollector implements SimulationListener {
     private double totalSystemServiceTime;
     private double totalSystemWaitTime;
     private double totalSystemResponseTime;
-
+    /**
+     * Registers a service point for statistics collection.
+     *
+     * @param servicePoint the service point to track
+     * @param terminal     whether this service point is a terminal/exit point for customers
+     */
     public void registerServicePoint(ServicePoint servicePoint, boolean terminal) {
         perServicePoint.computeIfAbsent(servicePoint, sp -> new MutableStats(servicePoint.getName()));
         if (terminal) {
             terminalServicePoints.add(servicePoint);
         }
     }
-
+    /**
+     * Resets all collected statistics.
+     */
     public void reset() {
         systemArrivals = 0;
         systemDepartures = 0;
@@ -44,7 +60,11 @@ public class StatisticsCollector implements SimulationListener {
         customerServiceTimes.clear();
         perServicePoint.values().forEach(MutableStats::reset);
     }
-
+    /**
+     * Called when a customer arrives at a service point.
+     *
+     * @param event the arrival event
+     */
     @Override
     public void onArrival(Event event) {
         perServicePoint.computeIfAbsent(event.getTarget(),
@@ -52,7 +72,13 @@ public class StatisticsCollector implements SimulationListener {
         customerServiceTimes.putIfAbsent(event.getCustomer(), 0.0);
         systemArrivals++;
     }
-
+    /**
+     * Called when a customer is routed from one service point to another.
+     *
+     * @param customer the customer being routed
+     * @param from     the originating service point
+     * @param to       the target service point (may be null)
+     */
     @Override
     public void onRouting(Customer customer, ServicePoint from, ServicePoint to) {
         if (to != null) {
@@ -60,7 +86,14 @@ public class StatisticsCollector implements SimulationListener {
                     sp -> new MutableStats(sp.getName())).recordArrival();
         }
     }
-
+    /**
+     * Called when a customer departs from a service point.
+     * Updates both per-service-point and system-wide statistics.
+     *
+     * @param event       the departure event
+     * @param waitTime    time spent waiting before service
+     * @param serviceTime time spent in service
+     */
     @Override
     public void onDeparture(Event event, double waitTime, double serviceTime) {
         ServicePoint target = event.getTarget();
@@ -82,7 +115,12 @@ public class StatisticsCollector implements SimulationListener {
             customerServiceTimes.remove(event.getCustomer());
         }
     }
-
+    /**
+     * Returns an immutable snapshot of the current simulation statistics.
+     *
+     * @param simulationTime the total simulation time
+     * @return a {@link SimulationStatistics} object containing the current metrics
+     */
     public SimulationStatistics snapshot(double simulationTime) {
         return new SimulationStatistics(
                 simulationTime,

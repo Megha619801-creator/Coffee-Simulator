@@ -34,7 +34,19 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
-
+/**
+ * Main JavaFX application for the Coffee Shop Simulation.
+ * <p>
+ * Implements the {@link ISimulatorUI} interface and provides a user interface
+ * for configuring, running, and visualising a coffee shop simulation where
+ * customers move through cashier, barista, finishing, and pickup stages.
+ * </p>
+ * <p>
+ * Supports controls for simulation speed, pausing, resuming, and stepping
+ * through individual events. Displays simulation results, history, and
+ * summary statistics.
+ * </p>
+ */
 public class MainApp extends Application implements ISimulatorUI {
 
     private static final long MIN_DELAY_MS = 5;
@@ -70,6 +82,12 @@ public class MainApp extends Application implements ISimulatorUI {
         controller = new Controller(this);
         historyRepository = new SimulationHistoryRepository();
     }
+    /**
+     * Starts the JavaFX application and sets up the main window, UI components,
+     * and event handlers for controlling the simulation.
+     *
+     * @param primaryStage the main stage for the JavaFX application
+     */
 
     @Override
     public void start(Stage primaryStage) {
@@ -322,16 +340,31 @@ public class MainApp extends Application implements ISimulatorUI {
         refreshHistoryViewAsync();
     }
 
+    /**
+     * Returns the simulation duration entered by the user in minutes.
+     *
+     * @return simulation duration in minutes
+     */
     @Override
     public double getTime() {
         return Double.parseDouble(time.getText());
     }
 
+    /**
+     * Returns the current animation delay in milliseconds.
+     *
+     * @return animation delay in milliseconds
+     */
     @Override
     public long getDelay() {
         return Long.parseLong(delay.getText());
     }
 
+    /**
+     * Sets the ending time of the simulation and updates the UI.
+     *
+     * @param time the ending simulation time
+     */
     @Override
     public void setEndingTime(double time) {
         DecimalFormat formatter = new DecimalFormat("#0.00");
@@ -340,16 +373,31 @@ public class MainApp extends Application implements ISimulatorUI {
         onSimulationStopped();
     }
 
+    /**
+     * Returns the visualisation component used to render customers and service points.
+     *
+     * @return the visualisation instance
+     */
     @Override
     public IVisualisation getVisualisation() {
         return display;
     }
 
+    /**
+     * Updates the UI to reflect the current animation delay.
+     *
+     * @param delayValue the new delay value in milliseconds
+     */
     @Override
     public void showCurrentDelay(long delayValue) {
         Platform.runLater(() -> updateDelayControls(delayValue));
     }
-
+    /**
+     * Displays the simulation summary, including total customers served,
+     * average waiting time, and a textual summary of the simulation.
+     *
+     * @param summary the {@link SimulationSummary} object containing results
+     */
     @Override
     public void showSummary(SimulationSummary summary) {
         setEndingTime(summary.simulationTime());
@@ -358,7 +406,11 @@ public class MainApp extends Application implements ISimulatorUI {
         summaryValue.setText(summary.toSummaryLine());
         appendSummaryAsync(summary);
     }
-
+    /**
+     * Launches the JavaFX application.
+     *
+     * @param args command-line arguments
+     */
     public static void main(String[] args) {
         launch(args);
     }

@@ -18,8 +18,12 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Draws a clean horizontal flow between service points using custom icons and
- * capsules for customers.
+ * Visual representation of the coffee shop simulation.
+ * <p>
+ * Displays service points in a horizontal flow, draws customer capsules
+ * for both in-store and mobile orders, and provides a legend.
+ * Supports interactive tooltips when hovering over service points.
+ * </p>
  */
 public class Visualisation extends Canvas implements IVisualisation {
 
@@ -52,7 +56,12 @@ public class Visualisation extends Canvas implements IVisualisation {
     private final Image baristaIcon;
     private final Image finishingIcon;
     private final Image pickupIcon;
-
+    /**
+     * Constructs a new visualisation canvas with the given dimensions.
+     *
+     * @param w initial width of the canvas
+     * @param h initial height of the canvas
+     */
     public Visualisation(int w, int h) {
         super(Math.max(w, 680), Math.max(h, 200));
         gc = getGraphicsContext2D();
@@ -83,17 +92,31 @@ public class Visualisation extends Canvas implements IVisualisation {
         laneQueues.forEach(List::clear);
         drawScene();
     }
-
+    /**
+     * Adds a customer to a service point lane.
+     *
+     * @param c                the customer to add
+     * @param servicePointIndex index of the service point lane
+     */
     @Override
     public void addCustomer(Customer c, int servicePointIndex) {
         moveToLane(c, servicePointIndex);
     }
-
+    /**
+     * Moves a customer to a specific service point lane.
+     *
+     * @param c                the customer to move
+     * @param servicePointIndex index of the service point lane
+     */
     @Override
     public void moveCustomer(Customer c, int servicePointIndex) {
         moveToLane(c, servicePointIndex);
     }
-
+    /**
+     * Removes a customer from the visualisation.
+     *
+     * @param c the customer to remove
+     */
     @Override
     public void removeCustomer(Customer c) {
         Integer lane = customerLaneIndex.remove(c);
@@ -348,7 +371,12 @@ public class Visualisation extends Canvas implements IVisualisation {
         double step = available / (laneCount - 1);
         return HORIZONTAL_PADDING + index * step;
     }
-
+    /**
+     * Resizes the canvas and redraws all elements.
+     *
+     * @param width  new width
+     * @param height new height
+     */
     public void resizeCanvas(double width, double height) {
         double newWidth = Math.max(1, width);
         double newHeight = Math.max(1, height);
@@ -365,7 +393,12 @@ public class Visualisation extends Canvas implements IVisualisation {
             drawScene();
         }
     }
-
+    /**
+     * Loads an image icon from the classpath.
+     *
+     * @param resourcePath path to the icon resource
+     * @return loaded Image, or null if failed
+     */
     private Image loadIcon(String resourcePath) {
         try {
             return new Image(Objects.requireNonNull(getClass().getResourceAsStream(resourcePath)));

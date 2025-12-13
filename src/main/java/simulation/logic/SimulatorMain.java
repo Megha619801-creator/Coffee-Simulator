@@ -7,8 +7,23 @@ import simulation.statistics.StatisticsReporter;
 
 import java.io.IOException;
 import java.nio.file.Path;
-
+/**
+ * Entry point for running the coffee shop simulation from the command line.
+ * <p>
+ * This class performs the following steps:
+ * <ol>
+ *     <li>Loads simulation parameters from a configuration file (or uses defaults if not found).</li>
+ *     <li>Initializes and runs the {@link Simulator}.</li>
+ *     <li>Writes the resulting statistics to a CSV file and prints a summary to the console.</li>
+ * </ol>
+ * </p>
+ */
 public class SimulatorMain {
+    /**
+     * Main method to start the simulation.
+     *
+     * @param args command-line arguments (ignored)
+     */
     public static void main(String[] args) {
         SimulationParameters params = loadParameters();
         Simulator sim = new Simulator(params);

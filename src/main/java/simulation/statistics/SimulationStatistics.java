@@ -4,7 +4,13 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Immutable snapshot containing system level and per-service point statistics.
+ * Immutable snapshot containing system-level and per-service point statistics.
+ * <p>
+ * This class stores data about the simulation, such as total arrivals, departures,
+ * service times, waiting times, and response times. It also provides utility
+ * methods to calculate averages, throughput, system utilization, and other
+ * performance metrics.
+ * </p>
  */
 public final class SimulationStatistics {
 

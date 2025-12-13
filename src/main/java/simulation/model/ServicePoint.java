@@ -4,7 +4,13 @@ import eduni.distributions.ContinuousGenerator;
 
 import java.util.LinkedList;
 import java.util.Queue;
-
+/**
+ * Represents a service station in the simulation.
+ * <p>
+ * Manages a queue of customers and generates service times
+ * using a probability distribution.
+ * </p>
+ */
 public class ServicePoint {
     private final String name;
     private final Queue<Customer> queue = new LinkedList<>();
